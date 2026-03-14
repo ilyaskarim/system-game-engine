@@ -1,22 +1,15 @@
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { createNoise2D, fbm } from '../utils/noise';
 import type { MapConfig } from '../types/MapConfig';
 import { DEFAULT_MAP } from '../types/MapConfig';
 import { generateRiverPath, getDistanceToRiver, getTerrainColor } from '../utils/terrainUtils';
-import { isMountainZone, clearHeightCache } from '../utils/terrainHeight';
+import { clearHeightCache } from '../utils/terrainHeight';
 
 interface TerrainProps {
   size?: number;
   segments?: number;
   heightScale?: number;
   config?: MapConfig;
-}
-
-// Step function for sharp transitions between flat and mountain terrain
-function stepFunction(value: number, threshold: number, sharpness: number = 8): number {
-  const x = (value - threshold) * sharpness;
-  return 1 / (1 + Math.exp(-x));
 }
 
 export function Terrain({
@@ -35,8 +28,6 @@ export function Terrain({
     const positions = geo.attributes.position.array as Float32Array;
     const colors = new Float32Array(positions.length);
 
-    const noise = createNoise2D(config.seed);
-
     // Generate river path based on config seed (global)
     const riverPoints = generateRiverPath(size, config.seed);
 
@@ -45,32 +36,17 @@ export function Terrain({
       const x = positions[i];
       const y = positions[i + 1];
 
-      // Start with flat terrain at y=0 (plains)
+      // Flat terrain at y=0
       let height = 0;
 
       // Check distance to river
       const minRiverDist = getDistanceToRiver(x, y, riverPoints);
       const riverWidth = 2;
 
-      // River carving - slight depression for river bed
+      // River carving - depression for river bed
       if (minRiverDist < riverWidth) {
         const riverFactor = 1 - minRiverDist / riverWidth;
         height -= riverFactor * 0.3;
-      }
-
-      // Mountain zones ONLY - step function for sharp transitions
-      if (config.terrain.mountainFactor > 0) {
-        const { inMountain, intensity } = isMountainZone(x, y, config);
-
-        if (inMountain && intensity > 0.05) {
-          // Mountain height using noise
-          const mountainHeight = fbm(noise, x * 0.08, y * 0.08, 4, 2, 0.6);
-
-          // Apply step-function intensity for sharp falloff at mountain edges
-          // This ensures minimal transition area between flat plains and mountains
-          const sharpIntensity = stepFunction(intensity, 0.3, 12);
-          height += sharpIntensity * Math.max(0, mountainHeight) * 1.5;
-        }
       }
 
       positions[i + 2] = height * heightScale;

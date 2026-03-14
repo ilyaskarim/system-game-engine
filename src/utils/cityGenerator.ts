@@ -1,6 +1,6 @@
 import type { MapConfig } from '../types/MapConfig';
 import { seededRandom, generateRiverPath, getDistanceToRiver } from './terrainUtils';
-import { isMountainZone, getTerrainHeightGlobal, getBuildingPlacement } from './terrainHeight';
+import { getBuildingPlacement } from './terrainHeight';
 
 // Building types with different characteristics
 export type BuildingStyle = 'residential' | 'commercial' | 'house';
@@ -204,7 +204,7 @@ export function isNearRoad(
 export function isCityBuildable(
   x: number,
   z: number,
-  config: MapConfig,
+  _config: MapConfig,
   terrainSize: number,
   riverPath: { x: number; y: number }[],
   roadSegments: RoadSegment[]
@@ -212,14 +212,6 @@ export function isCityBuildable(
   // Check distance to river (wider buffer for city buildings)
   const riverDist = getDistanceToRiver(x, z, riverPath);
   if (riverDist < 4) return false;
-
-  // Check mountain zones
-  const { inMountain, intensity } = isMountainZone(x, z, config);
-  if (inMountain && intensity > 0.3) return false;
-
-  // Check terrain flatness (y should be close to 0)
-  const height = getTerrainHeightGlobal(x, z, 8, config, terrainSize);
-  if (Math.abs(height) > 0.5) return false;
 
   // Check road proximity
   if (isNearRoad(x, z, roadSegments, 1.5)) return false;
