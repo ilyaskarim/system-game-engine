@@ -35,7 +35,7 @@ export function seededRandom(seed: number): () => number {
 }
 
 // Check if position is in water (river)
-export function isInWater(x: number, z: number, riverPath: RiverPoint[], riverWidth: number = 2): boolean {
+export function isInWater(x: number, z: number, riverPath: RiverPoint[], riverWidth: number = 1): boolean {
   let minRiverDist = Infinity;
   for (const point of riverPath) {
     const dist = Math.sqrt((x - point.x) ** 2 + (z - point.y) ** 2);
@@ -102,7 +102,7 @@ export function getTerrainColor(
   minRiverDist: number,
   config: MapConfig
 ): [number, number, number] {
-  const riverWidth = 2;
+  const riverWidth = 1;
   const colors = config.colors;
 
   // Random variation

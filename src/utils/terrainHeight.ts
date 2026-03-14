@@ -20,15 +20,15 @@ export function getTerrainHeightGlobal(
 
   const riverPoints = generateRiverPath(size, config.seed);
   const minRiverDist = getDistanceToRiver(x, z, riverPoints);
-  const riverWidth = 2;
+  const riverWidth = 1;
 
   // Flat terrain at y=0
   let height = 0;
 
-  // River carving - creates slight depression
+  // River carving - shallow depression
   if (minRiverDist < riverWidth) {
     const riverFactor = 1 - minRiverDist / riverWidth;
-    height -= riverFactor * 0.3;
+    height -= riverFactor * 0.1;
   }
 
   // Cache the result
@@ -108,7 +108,7 @@ export function isBuildableTerrain(
   const minRiverDist = getDistanceToRiver(x, z, riverPoints);
 
   // Not in river
-  if (minRiverDist < 3) return false;
+  if (minRiverDist < 2) return false;
 
   return true;
 }

@@ -209,9 +209,9 @@ export function isCityBuildable(
   riverPath: { x: number; y: number }[],
   roadSegments: RoadSegment[]
 ): boolean {
-  // Check distance to river (wider buffer for city buildings)
+  // Check distance to river (buffer for city buildings)
   const riverDist = getDistanceToRiver(x, z, riverPath);
-  if (riverDist < 4) return false;
+  if (riverDist < 2) return false;
 
   // Check road proximity
   if (isNearRoad(x, z, roadSegments, 1.5)) return false;

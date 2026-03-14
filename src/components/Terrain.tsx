@@ -41,12 +41,12 @@ export function Terrain({
 
       // Check distance to river
       const minRiverDist = getDistanceToRiver(x, y, riverPoints);
-      const riverWidth = 2;
+      const riverWidth = 1;
 
-      // River carving - depression for river bed
+      // River carving - shallow depression for river bed
       if (minRiverDist < riverWidth) {
         const riverFactor = 1 - minRiverDist / riverWidth;
-        height -= riverFactor * 0.3;
+        height -= riverFactor * 0.1;
       }
 
       positions[i + 2] = height * heightScale;
