@@ -1,18 +1,28 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
 import { Terrain } from './Terrain';
-import { CityPopulation } from './CityPopulation';
+// import { CityPopulation } from './CityPopulation';
 import { Roads } from './Roads';
-import { Regions } from './Regions';
+import { Regions, generateRegions } from './Regions';
+// import { Missile } from './Missile';
+import { Planes } from './Planes';
 import type { MapConfig } from '../types/MapConfig';
 import { MAP_PRESETS, DEFAULT_MAP } from '../types/MapConfig';
+
+// Shared terrain dimensions - all components use this
+const TERRAIN_SIZE = 100;
 
 interface SceneProps {
   config: MapConfig;
 }
 
 function Scene({ config }: SceneProps) {
+  // Generate regions based on config
+  const regions = useMemo(() => {
+    return generateRegions(config.regionCount, config.seed, TERRAIN_SIZE);
+  }, [config.regionCount, config.seed]);
+
   return (
     <>
       {/* Lighting */}
@@ -43,10 +53,23 @@ function Scene({ config }: SceneProps) {
       />
 
       {/* Game Elements */}
-      <Terrain config={config} />
-      <Regions config={config} />
-      <Roads config={config} />
-      <CityPopulation config={config} randomizeSeed={true} />
+      <Terrain config={config} size={TERRAIN_SIZE} />
+      <Regions config={config} size={TERRAIN_SIZE} />
+      <Roads config={config} terrainSize={TERRAIN_SIZE} />
+      {/* <CityPopulation config={config} /> */}
+
+      {/* Flying planes and jets */}
+      <Planes regions={regions} seed={config.seed} />
+
+      {/* Missile Animation - fires after map loads */}
+      {/* <Missile
+        start={[-40, 2, -35]}
+        end={[35, 2, 40]}
+        duration={8}
+        delay={0.5}
+        arcHeight={25}
+        scale={0.05}
+      /> */}
 
       {/* Camera Controls */}
       <OrbitControls
